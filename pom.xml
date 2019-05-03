@@ -18,8 +18,20 @@
         <version.assertj>3.12.2</version.assertj>
         <version.junit>4.12</version.junit>
         <version.java>1.8</version.java>
-
     </properties>
+
+    <repositories>
+        <repository>
+            <id>sonatype-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </repository>
+    </repositories>
 
     <organization>
         <name>Knowm Inc.</name>
