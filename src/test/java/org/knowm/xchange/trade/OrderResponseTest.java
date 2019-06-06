@@ -32,7 +32,6 @@ public class OrderResponseTest {
     assertThat(orderResponse.price).isEqualByComparingTo(new BigDecimal("11000"));
     assertThat(orderResponse.executedPrice).isEqualByComparingTo(new BigDecimal("10457.651100000"));
     assertThat(orderResponse.trades.size()).isEqualByComparingTo(1);
-    assertThat(orderResponse.created)
-        .isEqualTo(Date.from(ZonedDateTime.parse("2018-02-06T16:07:50.122206Z").toInstant()));
+    assertThat(orderResponse.created).isEqualTo("2018-02-06T16:07:50.122206Z");
   }
 }

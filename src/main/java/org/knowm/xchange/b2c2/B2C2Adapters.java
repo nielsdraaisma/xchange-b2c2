@@ -1,18 +1,22 @@
 package org.knowm.xchange.b2c2;
 
-import java.math.BigDecimal;
-import java.time.ZonedDateTime;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import org.knowm.xchange.b2c2.dto.trade.LedgerItem;
+import org.knowm.xchange.b2c2.dto.trade.OrderResponse;
 import org.knowm.xchange.b2c2.dto.trade.QuoteResponse;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.account.FundingRecord;
 import org.knowm.xchange.dto.marketdata.Ticker;
+import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.UserTrade;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.ZonedDateTime;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class B2C2Adapters {
 
@@ -25,6 +29,7 @@ public class B2C2Adapters {
     cryptos.add(Currency.ETH);
     cryptos.add(Currency.XRP);
     cryptos.add(Currency.LTC);
+    cryptos.add(Currency.EOS);
   }
 
   private B2C2Adapters() {}
@@ -39,6 +44,16 @@ public class B2C2Adapters {
 
   static boolean isCrypto(final Currency currency) {
     return cryptos.contains(currency);
+  }
+
+  public static Order.OrderType adaptSide(final String side) {
+    if (side.equals("buy")) {
+      return Order.OrderType.BID;
+    } else if (side.equals("sell")) {
+      return Order.OrderType.ASK;
+    } else {
+      throw new IllegalArgumentException("Cannot adapt side " + side);
+    }
   }
 
   public static CurrencyPair adaptInstrumentToCurrencyPair(final String instrument) {
@@ -109,13 +124,13 @@ public class B2C2Adapters {
         originalAmount = new BigDecimal(negative.amount).abs();
         currencyPair =
             new CurrencyPair(new Currency(negative.currency), new Currency(positive.currency));
-        price = new BigDecimal(positive.amount);
+        price = new BigDecimal(positive.amount).divide(originalAmount, RoundingMode.HALF_UP);
       } else {
         orderType = Order.OrderType.BID;
         originalAmount = new BigDecimal(positive.amount);
         currencyPair =
             new CurrencyPair(new Currency(positive.currency), new Currency(negative.currency));
-        price = new BigDecimal(negative.amount).abs();
+        price = new BigDecimal(negative.amount).abs().divide(originalAmount, RoundingMode.HALF_UP);
       }
 
       userTrades.add(
@@ -130,5 +145,23 @@ public class B2C2Adapters {
               .build());
     }
     return userTrades;
+  }
+
+  public static Order adaptOrderResponseToOrder(OrderResponse order) {
+    LimitOrder.Builder builder =
+        new LimitOrder.Builder(
+                adaptSide(order.side), adaptInstrumentToCurrencyPair(order.instrument))
+            .originalAmount(order.quantity)
+            .id(order.clientOrderId)
+            .limitPrice(order.price)
+            .timestamp(nullableStringToDate(order.created));
+    if (order.executedPrice != null) {
+      builder =
+          builder
+              .cumulativeAmount(order.quantity)
+              .averagePrice(order.executedPrice)
+              .limitPrice(order.price);
+    }
+    return builder.build();
   }
 }

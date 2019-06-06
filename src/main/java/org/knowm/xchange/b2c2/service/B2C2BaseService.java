@@ -34,6 +34,9 @@ public class B2C2BaseService extends BaseExchangeService<B2C2Exchange> implement
 
   ExchangeException handleException(final B2C2Exception exception) {
     B2C2Exception.Error error = exception.errors.iterator().next();
+    if (exception.getHttpStatusCode() == 404) {
+      return new ExchangeException("Not found");
+    }
     if (error.code != null) {
       switch (error.code) {
         case 1100:

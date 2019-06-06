@@ -23,6 +23,11 @@ public interface B2C2 {
   OrderResponse order(@HeaderParam("Authorization") String authorization, OrderRequest request)
       throws B2C2Exception, IOException;
 
+  @GET
+  @Path("order/{id}")
+  OrderResponse getOrder(@HeaderParam("Authorization") String authorization, @PathParam("id") String id)
+          throws B2C2Exception, IOException;
+
   @POST
   @Path("request_for_quote/")
   @Consumes(MediaType.APPLICATION_JSON)

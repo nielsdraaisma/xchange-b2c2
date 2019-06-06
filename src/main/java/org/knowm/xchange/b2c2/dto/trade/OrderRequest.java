@@ -3,8 +3,8 @@ package org.knowm.xchange.b2c2.dto.trade;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public final class OrderRequest {
-  @JsonProperty("client_order_id")
-  public final String clientOrderId;
+//  @JsonProperty("client_order_id")
+//  public final String clientOrderId;
 
   @JsonProperty("quantity")
   public final String quantity; // Max 4 decimals
@@ -28,14 +28,14 @@ public final class OrderRequest {
   public final String validUntil;
 
   public OrderRequest(
-      String clientOrderId,
+//      String clientOrderId,
       String quantity,
       String side,
       String instrument,
       String price,
       Boolean forceOpen,
       String validUntil) {
-    this.clientOrderId = clientOrderId;
+//    this.clientOrderId = clientOrderId;
     this.quantity = quantity;
     this.side = side;
     this.instrument = instrument;

@@ -35,6 +35,7 @@ public class B2C2BaseServiceRaw extends B2C2BaseService {
     }
   }
 
+
   final String toApiInstrument(CurrencyPair currencyPair) {
     try {
       return currencyPair.base.toString() + currencyPair.counter.toString() + ".SPOT";

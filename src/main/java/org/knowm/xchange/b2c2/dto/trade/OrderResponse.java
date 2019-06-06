@@ -1,8 +1,8 @@
 package org.knowm.xchange.b2c2.dto.trade;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 
 public class OrderResponse {
@@ -14,7 +14,7 @@ public class OrderResponse {
   public final BigDecimal price;
   public final BigDecimal executedPrice;
   public final List<Trade> trades;
-  public final Date created;
+  public final String created;
 
   public OrderResponse(
       @JsonProperty("order_id") String orderId,
@@ -25,7 +25,7 @@ public class OrderResponse {
       @JsonProperty("price") BigDecimal price,
       @JsonProperty("executed_price") BigDecimal executedPrice,
       @JsonProperty("trades") List<Trade> trades,
-      @JsonProperty("created") Date created) {
+      @JsonProperty("created") String created) {
     this.orderId = orderId;
     this.clientOrderId = clientOrderId;
     this.quantity = quantity;
@@ -41,7 +41,7 @@ public class OrderResponse {
     public final String instrument;
     public final String tradeId;
     public final String rfqId;
-    public final Date created;
+    public final String created;
     public final BigDecimal price;
     public final BigDecimal quantity;
     public final String order;
@@ -51,7 +51,7 @@ public class OrderResponse {
         @JsonProperty("instrument") String instrument,
         @JsonProperty("trade_id") String tradeId,
         @JsonProperty("rfq_id") String rfqId,
-        @JsonProperty("created") Date created,
+        @JsonProperty("created") String created,
         @JsonProperty("price") BigDecimal price,
         @JsonProperty("quantity") BigDecimal quantity,
         @JsonProperty("order") String order,

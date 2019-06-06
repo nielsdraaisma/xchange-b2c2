@@ -18,8 +18,12 @@ import org.knowm.xchange.service.trade.params.TradeHistoryParams;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -120,19 +124,20 @@ public class B2C2TradingService extends B2C2TradingServiceRaw implements TradeSe
       throw new IllegalArgumentException("Multiple orderIds not supported");
     }
     final String orderId = orderIds[0];
-    return B2C2Adapters.adaptLedgerItemToUserTrades(getLedger()).stream()
-        .filter(ut -> ut.getOrderId().equals(orderId))
-        .map(
-            ut ->
-                new LimitOrder.Builder(ut.getType(), ut.getCurrencyPair())
-                    .originalAmount(ut.getOriginalAmount())
-                    .id(ut.getOrderId())
-                    .timestamp(ut.getTimestamp())
-                    .limitPrice(ut.getPrice())
-                    .averagePrice(ut.getPrice())
-                    .orderStatus(Order.OrderStatus.FILLED)
-                    .build())
-        .collect(Collectors.toList());
+    return Collections.singletonList(B2C2Adapters.adaptOrderResponseToOrder(getOrder(orderId)));
+    //    return B2C2Adapters.adaptLedgerItemToUserTrades(getLedger()).stream()
+    //        .filter(ut -> ut.getOrderId().equals(orderId))
+    //        .map(
+    //            ut ->
+    //                new LimitOrder.Builder(ut.getType(), ut.getCurrencyPair())
+    //                    .originalAmount(ut.getOriginalAmount())
+    //                    .id(ut.getOrderId())
+    //                    .timestamp(ut.getTimestamp())
+    //                    .limitPrice(ut.getPrice())
+    //                    .averagePrice(ut.getPrice())
+    //                    .orderStatus(Order.OrderStatus.FILLED)
+    //                    .build())
+    //        .collect(Collectors.toList());
   }
 
   @Override
