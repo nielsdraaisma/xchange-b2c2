@@ -191,6 +191,7 @@ public class B2C2Adapters {
             adaptSide(trade.side), adaptInstrumentToCurrencyPair(trade.instrument))
         .timestamp(nullableStringToDate(trade.created))
         .limitPrice(new BigDecimal(trade.price))
+        .averagePrice(new BigDecimal(trade.price))
         .originalAmount(new BigDecimal(trade.quantity))
         .id(trade.tradeId)
         .build();
