@@ -21,9 +21,9 @@ public class B2C2BaseService extends BaseExchangeService<B2C2Exchange> implement
 
   B2C2BaseService(B2C2Exchange exchange) {
     super(exchange);
-    String apiSecret = exchange.getExchangeSpecification().getApiKey();
-    if (apiSecret != null) {
-      this.authorizationHeader = "Token " + apiSecret;
+    String apiKey = exchange.getExchangeSpecification().getApiKey();
+    if (apiKey != null) {
+      this.authorizationHeader = "Token " + apiKey;
     } else {
       this.authorizationHeader = null;
     }

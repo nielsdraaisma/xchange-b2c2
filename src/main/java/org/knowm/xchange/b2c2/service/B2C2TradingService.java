@@ -16,15 +16,14 @@ import org.knowm.xchange.service.trade.params.TradeHistoryParamTransactionId;
 import org.knowm.xchange.service.trade.params.TradeHistoryParams;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class B2C2TradingService extends B2C2TradingServiceRaw implements TradeService {
@@ -34,35 +33,26 @@ public class B2C2TradingService extends B2C2TradingServiceRaw implements TradeSe
 
   @Override
   public String placeLimitOrder(LimitOrder limitOrder) throws IOException {
-    try {
-      quoteLock.lock();
-      final QuoteResponse quoteResponse =
-          quote(
-              new QuoteRequest(
-                  toApiInstrument(limitOrder.getCurrencyPair()),
-                  OrderSide.of(limitOrder.getType()).name().toLowerCase(),
-                  limitOrder
-                      .getOriginalAmount()
-                      .setScale(4, RoundingMode.HALF_UP)
-                      .toPlainString()));
+    OrderRequest orderRequest =
+        new OrderRequest(
+            UUID.randomUUID().toString(),
+            limitOrder.getOriginalAmount().toPlainString(),
+            B2C2Adapters.adaptSide(limitOrder.getType()),
+            B2C2Adapters.adaptCurrencyPairToSpotInstrument(limitOrder.getCurrencyPair()),
+            limitOrder.getLimitPrice().toPlainString(),
+            false,
+            DateTimeFormatter.ISO_DATE_TIME.format(
+                ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(5)));
 
-      if (new BigDecimal(quoteResponse.price).compareTo(limitOrder.getLimitPrice()) > 0) {
-        TradeResponse tradeResponse =
-            trade(
-                new TradeRequest(
-                    quoteResponse.rfqId,
-                    quoteResponse.quantity,
-                    quoteResponse.side,
-                    quoteResponse.instrument,
-                    quoteResponse.price));
-        return tradeResponse.trade_id;
-      } else {
-        List<B2C2Exception.Error> errors = new ArrayList<>();
-        errors.add(new B2C2Exception.Error("Price not valid", 1009));
-        throw new B2C2Exception(errors);
-      }
-    } finally {
-      quoteLock.unlock();
+    // Use the order api to place the order using a random UUID as client reference.
+    OrderResponse orderResponse = order(orderRequest);
+
+    if (orderResponse.trades.size() == 1) {
+      return orderResponse.trades.get(0).tradeId;
+    } else {
+      throw new IllegalStateException(
+          "Did not get expected number of trades from B2C2 order response, expected 1 got "
+              + orderResponse.trades.size());
     }
   }
 
@@ -88,7 +78,7 @@ public class B2C2TradingService extends B2C2TradingServiceRaw implements TradeSe
                   quoteResponse.side,
                   quoteResponse.instrument,
                   quoteResponse.price));
-      return tradeResponse.trade_id;
+      return tradeResponse.tradeId;
     } finally {
       quoteLock.unlock();
     }
@@ -119,12 +109,17 @@ public class B2C2TradingService extends B2C2TradingServiceRaw implements TradeSe
   }
 
   @Override
+  /**
+   * this expects a B2C2 trade no as returned by the placeOrder methods, not the b2c2 order id as
+   * used on the /order endpoints.
+   */
   public Collection<Order> getOrder(String... orderIds) throws IOException {
     if (orderIds.length > 1) {
       throw new IllegalArgumentException("Multiple orderIds not supported");
     }
-    final String orderId = orderIds[0];
-    return Collections.singletonList(B2C2Adapters.adaptOrderResponseToOrder(getOrder(orderId)));
+    final String tradeId = orderIds[0];
+    return Collections.singletonList(B2C2Adapters.adoptTradeResponseToOrder(getTrade(tradeId)));
+    // return Collections.singletonList(B2C2Adapters.adaptOrderResponseToOrder(getOrder(orderId)));
     //    return B2C2Adapters.adaptLedgerItemToUserTrades(getLedger()).stream()
     //        .filter(ut -> ut.getOrderId().equals(orderId))
     //        .map(

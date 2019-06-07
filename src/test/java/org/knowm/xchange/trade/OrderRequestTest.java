@@ -13,6 +13,7 @@ public class OrderRequestTest {
   public void testMarshalling() throws JsonProcessingException {
     OrderRequest orderRequest =
         new OrderRequest(
+                "uuid",
             "2",
             "buy",
             "BTCUSD.SPOT",
@@ -24,6 +25,6 @@ public class OrderRequestTest {
     String json = mapper.writeValueAsString(orderRequest);
     assertThat(json)
         .isEqualToIgnoringNewLines(
-            "{\"quantity\":\"2\",\"side\":\"buy\",\"instrument\":\"BTCUSD.SPOT\",\"order_type\":\"FOK\",\"price\":\"12333.23\",\"force_open\":false,\"valid_until\":\"2018-02-06T16:07:50.122206Z\"}");
+            "{\"client_order_id\":\"uuid\",\"quantity\":\"2\",\"side\":\"buy\",\"instrument\":\"BTCUSD.SPOT\",\"order_type\":\"FOK\",\"price\":\"12333.23\",\"force_open\":false,\"valid_until\":\"2018-02-06T16:07:50.122206Z\"}");
   }
 }

@@ -1,12 +1,13 @@
 package org.knowm.xchange.b2c2;
 
+import org.knowm.xchange.b2c2.dto.trade.*;
+import org.knowm.xchange.b2c2.service.B2C2Exception;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import org.knowm.xchange.b2c2.dto.trade.*;
-import org.knowm.xchange.b2c2.service.B2C2Exception;
 
 @Path("/")
 @Produces({"application/json"})
@@ -25,8 +26,15 @@ public interface B2C2 {
 
   @GET
   @Path("order/{id}")
-  OrderResponse getOrder(@HeaderParam("Authorization") String authorization, @PathParam("id") String id)
-          throws B2C2Exception, IOException;
+  OrderResponse getOrder(
+      @HeaderParam("Authorization") String authorization, @PathParam("id") String id)
+      throws B2C2Exception, IOException;
+
+  @GET
+  @Path("trade/{id}")
+  TradeResponse getTrade(
+      @HeaderParam("Authorization") String authorization, @PathParam("id") String id)
+      throws B2C2Exception, IOException;
 
   @POST
   @Path("request_for_quote/")

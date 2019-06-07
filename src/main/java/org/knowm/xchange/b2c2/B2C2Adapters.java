@@ -3,6 +3,7 @@ package org.knowm.xchange.b2c2;
 import org.knowm.xchange.b2c2.dto.trade.LedgerItem;
 import org.knowm.xchange.b2c2.dto.trade.OrderResponse;
 import org.knowm.xchange.b2c2.dto.trade.QuoteResponse;
+import org.knowm.xchange.b2c2.dto.trade.TradeResponse;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
@@ -21,7 +22,10 @@ import java.util.stream.Collectors;
 public class B2C2Adapters {
 
   private static final Set<Currency> cryptos = new HashSet<>();
-  private static final Map<String, CurrencyPair> instruments = new ConcurrentHashMap<>();
+  private static final Map<String, CurrencyPair> instrumentsToCurrencypairs =
+      new ConcurrentHashMap<>();
+  private static final Map<CurrencyPair, String> currencyPairsToInstruments =
+      new ConcurrentHashMap<>();
 
   static {
     cryptos.add(Currency.BTC);
@@ -56,15 +60,32 @@ public class B2C2Adapters {
     }
   }
 
+  public static String adaptSide(final Order.OrderType type) {
+    if (type == Order.OrderType.ASK || type == Order.OrderType.EXIT_ASK) {
+      return "sell";
+    } else if (type == Order.OrderType.BID || type == Order.OrderType.EXIT_BID) {
+      return "buy";
+    } else {
+      throw new IllegalArgumentException("Cannot adapt orderType " + type);
+    }
+  }
+
   public static CurrencyPair adaptInstrumentToCurrencyPair(final String instrument) {
-    instruments.computeIfAbsent(
+    instrumentsToCurrencypairs.computeIfAbsent(
         instrument,
         i -> {
           String base = instrument.substring(0, 3);
           String counter = instrument.substring(3, 6);
           return new CurrencyPair(new Currency(base), new Currency(counter));
         });
-    return instruments.get(instrument);
+    return instrumentsToCurrencypairs.get(instrument);
+  }
+
+  public static String adaptCurrencyPairToSpotInstrument(final CurrencyPair currencyPair) {
+    currencyPairsToInstruments.computeIfAbsent(
+        currencyPair,
+        i -> currencyPair.base.toString() + currencyPair.counter.toString() + ".SPOT");
+    return currencyPairsToInstruments.get(currencyPair);
   }
 
   private static Date nullableStringToDate(String s) {
@@ -163,5 +184,15 @@ public class B2C2Adapters {
               .limitPrice(order.price);
     }
     return builder.build();
+  }
+
+  public static Order adoptTradeResponseToOrder(TradeResponse trade) {
+    return new LimitOrder.Builder(
+            adaptSide(trade.side), adaptInstrumentToCurrencyPair(trade.instrument))
+        .timestamp(nullableStringToDate(trade.created))
+        .limitPrice(new BigDecimal(trade.price))
+        .originalAmount(new BigDecimal(trade.quantity))
+        .id(trade.tradeId)
+        .build();
   }
 }
