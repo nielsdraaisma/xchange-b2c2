@@ -36,13 +36,13 @@ public class B2C2TradingService extends B2C2TradingServiceRaw implements TradeSe
     OrderRequest orderRequest =
         new OrderRequest(
             UUID.randomUUID().toString(),
-            limitOrder.getOriginalAmount().toPlainString(),
+            limitOrder.getOriginalAmount().stripTrailingZeros().toPlainString(),
             B2C2Adapters.adaptSide(limitOrder.getType()),
             B2C2Adapters.adaptCurrencyPairToSpotInstrument(limitOrder.getCurrencyPair()),
-            limitOrder.getLimitPrice().toPlainString(),
+            limitOrder.getLimitPrice().stripTrailingZeros().toPlainString(),
             false,
             DateTimeFormatter.ISO_DATE_TIME.format(
-                ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(5)));
+                ZonedDateTime.now(ZoneOffset.UTC).plusSeconds(15)));
 
     // Use the order api to place the order using a random UUID as client reference.
     OrderResponse orderResponse = order(orderRequest);

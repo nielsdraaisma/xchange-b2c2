@@ -46,8 +46,8 @@ public class B2C2BaseService extends BaseExchangeService<B2C2Exchange> implement
         case 1001:
           return new CurrencyPairNotValidException();
         default:
-          log.warn("No exception mapping for B2C2 exception error code {}", error.code, exception);
-          return new ExchangeException(exception);
+          log.warn("No exception mapping for B2C2 exception error code {}, throwing ExchangeException", error.code, exception);
+          return new ExchangeException(String.valueOf(error.code), exception);
       }
     } else return new ExchangeException(exception);
   }
