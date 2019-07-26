@@ -1,11 +1,10 @@
-package org.knowm.xchange.trade;
+package org.knowm.xchange.b2c2.dto.trade;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
-import org.knowm.xchange.b2c2.dto.trade.OrderRequest;
 
 public class OrderRequestTest {
 

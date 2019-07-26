@@ -10,20 +10,16 @@ import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.MarketOrder;
 import org.knowm.xchange.dto.trade.UserTrade;
 import org.knowm.xchange.dto.trade.UserTrades;
+import org.knowm.xchange.exceptions.NotAvailableFromExchangeException;
 import org.knowm.xchange.service.trade.TradeService;
-import org.knowm.xchange.service.trade.params.TradeHistoryParamCurrencyPair;
-import org.knowm.xchange.service.trade.params.TradeHistoryParamTransactionId;
-import org.knowm.xchange.service.trade.params.TradeHistoryParams;
+import org.knowm.xchange.service.trade.params.*;
 
 import java.io.IOException;
 import java.math.RoundingMode;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class B2C2TradingService extends B2C2TradingServiceRaw implements TradeService {
@@ -90,7 +86,7 @@ public class B2C2TradingService extends B2C2TradingServiceRaw implements TradeSe
       throw new IllegalArgumentException("Invalid params given");
     }
     final B2C2TradeHistoryParams b2C2TradeHistoryParams = (B2C2TradeHistoryParams) params;
-    List<UserTrade> userTrades = B2C2Adapters.adaptLedgerItemToUserTrades(getLedger());
+    List<UserTrade> userTrades = B2C2Adapters.adaptLedgerItemToUserTrades(getLedger(b2C2TradeHistoryParams.offset, b2C2TradeHistoryParams.limit , "trade", b2C2TradeHistoryParams.since));
 
     userTrades =
         userTrades.stream()
@@ -140,10 +136,13 @@ public class B2C2TradingService extends B2C2TradingServiceRaw implements TradeSe
     return new B2C2TradeHistoryParams();
   }
 
-  static class B2C2TradeHistoryParams
-      implements TradeHistoryParams, TradeHistoryParamTransactionId, TradeHistoryParamCurrencyPair {
+  public static class B2C2TradeHistoryParams
+      implements TradeHistoryParams, TradeHistoryParamTransactionId, TradeHistoryParamCurrencyPair, TradeHistoryParamOffset, TradeHistoryParamLimit, TradeHistoryParamsTimeSpan {
     private CurrencyPair currencyPair;
     private String transactionId;
+    private Long offset;
+    private Integer limit;
+    private Date since;
 
     @Override
     public CurrencyPair getCurrencyPair() {
@@ -162,6 +161,46 @@ public class B2C2TradingService extends B2C2TradingServiceRaw implements TradeSe
     @Override
     public void setTransactionId(String transactionId) {
       this.transactionId = transactionId;
+    }
+
+    @Override
+    public Long getOffset() {
+      return offset;
+    }
+
+    @Override
+    public void setOffset(Long offset) {
+      this.offset = offset * 2;
+    }
+
+    @Override
+    public Integer getLimit() {
+      return limit;
+    }
+
+    @Override
+    public void setLimit(Integer limit) {
+      this.limit = limit * 2;
+    }
+
+    @Override
+    public Date getStartTime() {
+      return since;
+    }
+
+    @Override
+    public void setStartTime(Date startTime) {
+      this.since = startTime;
+    }
+
+    @Override
+    public Date getEndTime() {
+      return null;
+    }
+
+    @Override
+    public void setEndTime(Date endTime) {
+      throw new NotAvailableFromExchangeException();
     }
   }
 }

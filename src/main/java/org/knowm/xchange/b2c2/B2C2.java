@@ -50,7 +50,7 @@ public interface B2C2 {
 
   @GET
   @Path("ledger/")
-  List<LedgerItem> ledger(@HeaderParam("Authorization") String authorization)
+  List<LedgerItem> ledger(@HeaderParam("Authorization") String authorization, @QueryParam("offset") Long offset, @QueryParam("limit") Integer limit, @QueryParam("type") String type, @QueryParam("since") String since)
       throws B2C2Exception, IOException;
 
   @GET

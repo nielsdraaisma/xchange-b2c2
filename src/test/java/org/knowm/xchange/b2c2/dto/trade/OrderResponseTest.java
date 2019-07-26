@@ -1,4 +1,4 @@
-package org.knowm.xchange.trade;
+package org.knowm.xchange.b2c2.dto.trade;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -6,11 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.time.ZonedDateTime;
-import java.util.Date;
+
 import org.junit.Test;
-import org.knowm.xchange.b2c2.dto.trade.OrderResponse;
-import org.knowm.xchange.b2c2.dto.trade.OrderSide;
 
 public class OrderResponseTest {
 

@@ -134,7 +134,7 @@ public class B2C2Adapters {
 
       // We require both sides of the trade to be present
       if (positive == null || negative == null) {
-        break;
+        continue;
       }
       final CurrencyPair currencyPair;
       final Order.OrderType orderType;
