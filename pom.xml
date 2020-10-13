@@ -16,7 +16,7 @@
 
     <properties>
         <version.assertj>3.12.2</version.assertj>
-        <version.junit>4.12</version.junit>
+        <version.junit>4.13.1</version.junit>
         <version.java>1.8</version.java>
     </properties>
 
